@@ -1,0 +1,253 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class GPACalculator {
+    
+    private static final Map<String, Double> GRADE_TO_GPV = new HashMap<>();
+    
+    static {
+        GRADE_TO_GPV.put("A+", 4.00);
+        GRADE_TO_GPV.put("A", 4.00);
+        GRADE_TO_GPV.put("A-", 3.70);
+        GRADE_TO_GPV.put("B+", 3.30);
+        GRADE_TO_GPV.put("B", 3.00);
+        GRADE_TO_GPV.put("B-", 2.70);
+        GRADE_TO_GPV.put("C+", 2.30);
+        GRADE_TO_GPV.put("C", 2.00);
+        GRADE_TO_GPV.put("C-", 1.70);
+        GRADE_TO_GPV.put("EXEMPT", 2.00);  // Exemption = Grade C (2.00)
+    }
+    
+    static class Course {
+        String code;
+        String name;
+        int defaultCredits;
+        boolean isNonCredit;
+        
+        Course(String code, String name, int defaultCredits) {
+            this.code = code;
+            this.name = name;
+            this.defaultCredits = defaultCredits;
+            this.isNonCredit = (defaultCredits == 0);
+        }
+    }
+    
+    private static final Map<Integer, Course[]> COURSES_BY_LEVEL = new HashMap<>();
+    
+    static {
+        // Level 3 (එකම පරිදි)
+        COURSES_BY_LEVEL.put(3, new Course[]{
+            new Course("COU3300", "Computer Organization and Communication", 3),
+            new Course("COU3301", "Database Management Systems", 3),
+            new Course("COU3202", "System Analysis and Design", 2),
+            new Course("ADU3330", "Discrete Mathematics I", 3),
+            new Course("COU3304", "Fundamentals of Programming", 3),
+            new Course("COU3303", "Software Engineering", 3),
+            new Course("ITU3201", "Web Development", 2),
+            new Course("COU3305", "Computer Security Concepts", 3),
+            new Course("ISU3300", "Fundamentals of Information Systems", 3),
+            new Course("COU3306", "Data Structures and Algorithms", 3),
+            new Course("ISU3201", "IT Organization", 2),
+            new Course("LTE3426", "English for Academic Purposes (EAP)", 4),
+            new Course("FDE3030", "Empowering for Independent Learning (EFIL) - NON-CREDIT", 0),
+            new Course("ADE3430", "Foundational Mathematics", 4),
+            new Course("COE3200", "Communication Skills for Computing - NON-CREDIT", 0)
+        });
+        
+        // Level 4, 5, 6 (පෙර පරිදිම)
+        COURSES_BY_LEVEL.put(4, new Course[]{
+            new Course("COU4300", "Object Oriented Programming", 3),
+            new Course("COU4201", "Knowledge Representation and Logic Programming", 2),
+            new Course("COU4302", "Operating Systems", 3),
+            new Course("ISU4200", "Professional Practices and Ethics", 2),
+            new Course("ADU4230", "Discrete Mathematics II", 2),
+            new Course("COU4304", "Computer Architecture", 3),
+            new Course("COU4303", "Artificial Intelligence", 3),
+            new Course("COU4305", "Computer Networks", 3),
+            new Course("COU4306", "Cryptography", 3),
+            new Course("ITU4200", "Software Validation and Assurance", 2),
+            new Course("ADU4231", "Probability and Statistics", 2),
+            new Course("ITU4202", "User Experience Design", 2)
+        });
+        
+        COURSES_BY_LEVEL.put(5, new Course[]{
+            new Course("ITU5300", "Human-Computer Interaction", 3),
+            new Course("ADU5330", "Inferential Techniques and Statistical Modeling", 3),
+            new Course("ITU5303", "Multimedia Design and Technology", 3),
+            new Course("ISU5301", "Industry Sustainability and Law", 3),
+            new Course("ITU5307", "Cybersecurity", 3),
+            new Course("ITU5306", "Internet of Things", 3),
+            new Course("ITU5309", "Virtual Systems and Services", 3),
+            new Course("COU5300", "Artificial Neural Networks", 3),
+            new Course("ITU5301", "Software Quality Assurance", 3),
+            new Course("ISU5300", "Management Information Systems", 3),
+            new Course("ITU5302", "Data Scalability and Analytics", 3),
+            new Course("ITU5305", "Enterprise Application Development", 3),
+            new Course("ITU5304", "Wireless and Cellular Networks", 3),
+            new Course("ITU5308", "Web Technologies", 3),
+            new Course("COU5301", "Cloud Computing", 3),
+            new Course("ITE5120", "Industry Readiness", 1),
+            new Course("ITE5621", "Industrial Training", 6),
+            new Course("ITE5622", "Industrial Application Development Project", 6)
+        });
+        
+        COURSES_BY_LEVEL.put(6, new Course[]{
+            new Course("ITU6621", "Research Project", 6),
+            new Course("COU6303", "Advanced Database Management Systems", 3),
+            new Course("COU6304", "Advanced Data Structures and Algorithms", 3),
+            new Course("ITU6302", "Distributed Systems", 3),
+            new Course("ISU6300", "IT Risk Management", 3),
+            new Course("COU6308", "Machine Learning", 3),
+            new Course("COU6309", "Information Security", 3),
+            new Course("COU6306", "Data Mining", 3),
+            new Course("COU6307", "Digital Forensics", 3),
+            new Course("ISU6302", "Social Media and Global Computing", 3),
+            new Course("ISU6305", "IT Project Management", 3)
+        });
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("==========================================");
+        System.out.println("     OUSL BSc IT GPA CALCULATOR");
+        System.out.println("==========================================\n");
+        
+        int level = 0;
+        while (true) {
+            System.out.print("Enter your Level (3, 4, 5, or 6): ");
+            try {
+                level = Integer.parseInt(scanner.nextLine().trim());
+                if (level == 3 || level == 4 || level == 5 || level == 6) break;
+                else System.out.println("Invalid! Please enter 3, 4, 5, or 6");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid! Enter a number (3, 4, 5, or 6)");
+            }
+        }
+        
+        Course[] courses = COURSES_BY_LEVEL.get(level);
+        
+        System.out.println("\n==========================================");
+        System.out.println("Level " + level + " Courses");
+        System.out.println("==========================================\n");
+        System.out.println("Instructions:");
+        System.out.println("• Enter GRADE (A+, A, A-, B+, B, B-, C+, C, C-)");
+        System.out.println("• Enter 'EXEMPT' if you have an EXEMPTION (automatically C grade, GPV 2.00)");
+        System.out.println("• Enter 'no' if you DID NOT take the subject");
+        System.out.println("• NON-CREDIT subjects (0 credits) do NOT affect GPA");
+        System.out.println("• Press ENTER to use default credits");
+        System.out.println("==========================================\n");
+        
+        double totalWeightedGPV = 0;
+        int totalCredits = 0;
+        int subjectsTaken = 0;
+        int exemptSubjects = 0;
+        int nonCreditTaken = 0;
+        
+        for (int i = 0; i < courses.length; i++) {
+            Course course = courses[i];
+            
+            System.out.println("----------------------------------------");
+            if (course.isNonCredit) {
+                System.out.println((i + 1) + ". " + course.code + " - " + course.name);
+                System.out.println("   ⚠ NON-CREDIT SUBJECT (0 credits)");
+            } else {
+                System.out.println((i + 1) + ". " + course.code + " - " + course.name);
+                System.out.println("   Credits: " + course.defaultCredits);
+            }
+            
+            System.out.print("   Grade / EXEMPT / no: ");
+            String input = scanner.nextLine().trim().toLowerCase();
+            
+            // Skip subject
+            if (input.equals("no")) {
+                System.out.println("   ⊘ Skipped\n");
+                continue;
+            }
+            
+            // Handle exemption
+            boolean isExempt = false;
+            String grade = input.toUpperCase();
+            if (input.equals("exempt")) {
+                isExempt = true;
+                grade = "C";  // Exemption = C grade (min pass)
+                System.out.println("   ✓ EXEMPTION detected. Auto-assigning grade: C (GPV 2.00)");
+            }
+            
+            // Validate grade
+            if (!GRADE_TO_GPV.containsKey(grade)) {
+                System.out.println("   ✗ Invalid! Use: A+, A, A-, B+, B, B-, C+, C, C-, EXEMPT, or no");
+                System.out.println("   ⊘ Skipping...\n");
+                continue;
+            }
+            
+            double gpv = GRADE_TO_GPV.get(grade);
+            
+            // Non-credit subjects
+            if (course.isNonCredit) {
+                System.out.printf("   ✓ Non-credit | Grade: %s | PASS (No GPA effect)\n\n", grade);
+                nonCreditTaken++;
+                continue;
+            }
+            
+            // Credit subject - ask for credits
+            System.out.print("   Credits (Press ENTER for " + course.defaultCredits + "): ");
+            String creditInput = scanner.nextLine().trim();
+            int credits;
+            if (creditInput.isEmpty()) {
+                credits = course.defaultCredits;
+            } else {
+                try {
+                    credits = Integer.parseInt(creditInput);
+                    if (credits <= 0) {
+                        System.out.println("   Invalid credits! Using default: " + course.defaultCredits);
+                        credits = course.defaultCredits;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("   Invalid! Using default: " + course.defaultCredits);
+                    credits = course.defaultCredits;
+                }
+            }
+            
+            totalWeightedGPV += credits * gpv;
+            totalCredits += credits;
+            subjectsTaken++;
+            if (isExempt) exemptSubjects++;
+            
+            System.out.printf("   ✓ Added | Credits: %d | Grade: %s | GPV: %.2f\n\n", credits, grade, gpv);
+        }
+        
+        System.out.println("\n==========================================");
+        System.out.println("              RESULTS");
+        System.out.println("==========================================");
+        System.out.println("Subjects Taken (Credit)     : " + subjectsTaken);
+        System.out.println("Exemptions Included         : " + exemptSubjects);
+        System.out.println("Non-Credit Subjects Taken   : " + nonCreditTaken);
+        System.out.println("Total Credits (for GPA)     : " + totalCredits);
+        System.out.println("Total Weighted GPV          : " + String.format("%.2f", totalWeightedGPV));
+        
+        if (totalCredits == 0) {
+            System.out.println("\n⚠ No credit subjects added! GPA cannot be calculated.");
+        } else {
+            double gpa = totalWeightedGPV / totalCredits;
+            System.out.printf("\n📊 GPA                       : %.2f\n", gpa);
+            
+            System.out.println("\n--- Degree Classification (BSc IT 90 credits) ---");
+            if (gpa >= 3.70) {
+                System.out.println("🏆 First Class Honours (GPA ≥ 3.70)");
+            } else if (gpa >= 3.30) {
+                System.out.println("📘 Second Class Honours - Upper Division (GPA ≥ 3.30)");
+            } else if (gpa >= 3.00) {
+                System.out.println("📗 Second Class Honours - Lower Division (GPA ≥ 3.00)");
+            } else if (gpa >= 2.00) {
+                System.out.println("✅ Pass (GPA ≥ 2.00)");
+            } else {
+                System.out.println("❌ Not eligible for degree (GPA < 2.00)");
+            }
+        }
+        System.out.println("==========================================");
+        
+        scanner.close();
+    }
+}
