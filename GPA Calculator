@@ -36,7 +36,7 @@ public class GPACalculator {
     private static final Map<Integer, Course[]> COURSES_BY_LEVEL = new HashMap<>();
     
     static {
-        // Level 3 (එකම පරිදි)
+        // Level 3 
         COURSES_BY_LEVEL.put(3, new Course[]{
             new Course("COU3300", "Computer Organization and Communication", 3),
             new Course("COU3301", "Database Management Systems", 3),
@@ -55,7 +55,7 @@ public class GPACalculator {
             new Course("COE3200", "Communication Skills for Computing - NON-CREDIT", 0)
         });
         
-        // Level 4, 5, 6 (පෙර පරිදිම)
+        // Level 4 
         COURSES_BY_LEVEL.put(4, new Course[]{
             new Course("COU4300", "Object Oriented Programming", 3),
             new Course("COU4201", "Knowledge Representation and Logic Programming", 2),
@@ -70,7 +70,7 @@ public class GPACalculator {
             new Course("ADU4231", "Probability and Statistics", 2),
             new Course("ITU4202", "User Experience Design", 2)
         });
-        
+        // Level 5
         COURSES_BY_LEVEL.put(5, new Course[]{
             new Course("ITU5300", "Human-Computer Interaction", 3),
             new Course("ADU5330", "Inferential Techniques and Statistical Modeling", 3),
@@ -91,7 +91,7 @@ public class GPACalculator {
             new Course("ITE5621", "Industrial Training", 6),
             new Course("ITE5622", "Industrial Application Development Project", 6)
         });
-        
+        // Level 6
         COURSES_BY_LEVEL.put(6, new Course[]{
             new Course("ITU6621", "Research Project", 6),
             new Course("COU6303", "Advanced Database Management Systems", 3),
